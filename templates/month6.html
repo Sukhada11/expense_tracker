@@ -1,0 +1,67 @@
+<html lang="en">
+<head>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+
+<script src="/static/js/getData.js"></script>
+<script src="/static/js/fillTable.js"></script>
+<script src="/static/js/drawData.js"></script>
+<script>
+function loadData(){
+  fetch({{url_for('getMonthlyData')|tojson}},{
+	   method: 'GET',
+      })
+        .then(parseJSON)
+        .then(setData);
+    }
+	function parseJSON(response) {
+	  
+      return response.json();
+    }
+	
+    function setData(data) {
+	  console.log(data)
+      jsonData = data
+	  filetered = convertDataDay(data,'last6')
+	  monthly=addShow(filetered,'month')
+	  draw(data,monthly,'monthly')
+	  }
+	  
+
+
+</script>
+</head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/static/js/dropdown.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body onload="loadData()">
+
+<div class="sidenav">
+  <a href="#about">Main</a>
+  <a href="{{ url_for('addExpense') }}">Add Expense</a>
+  <a href="{{ url_for('loadDailyPage') }}">View Today's Expense</a>
+  <button class="dropdown-btn" onClick="clicked()">Dropdown 
+    <i class="fa fa-caret-down"></i>
+  </button>
+  <div class="dropdown-container">
+    <a href="{{ url_for('loadCurrMonthPage') }}">View Current Month's Expense</a>
+    <a href="{{ url_for('loadLastMonthPage') }}">View Last Month's Expense</a>
+    <a href="{{ url_for('load3MonthPage') }}">View Last 3 Month's Expense</a>
+	<a href="{{ url_for('load6MonthPage') }}">View Last 6 Month's Expense</a>
+  </div>
+</div>
+
+<div class="main">
+<div id="expenseTable">hi
+</div>
+<div id="piechart1"></div>
+<div id="piechart2"></div>
+<div id="piechart3"></div>
+<div id="piechart4"></div>
+<div id="piechart5"></div>
+<div id="piechart6"></div>
+</div>
+</body>
+</html>

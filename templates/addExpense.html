@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/static/js/dropdown.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="sidenav">
+  <a href="#about">Main</a>
+  <a href="{{ url_for('addExpense') }}">Add Expense</a>
+  <a href="{{ url_for('loadDailyPage') }}">View Today's Expense</a>
+  <button class="dropdown-btn" onClick="clicked()">Dropdown 
+    <i class="fa fa-caret-down"></i>
+  </button>
+  <div class="dropdown-container">
+    <a href="{{ url_for('loadCurrMonthPage') }}">View Current Month's Expense</a>
+    <a href="{{ url_for('loadLastMonthPage') }}">View Last Month's Expense</a>
+    <a href="{{ url_for('load3MonthPage') }}">View Last 3 Month's Expense</a>
+	<a href="{{ url_for('load6MonthPage') }}">View Last 6 Month's Expense</a>
+  </div>
+</div>
+
+<div class="main">
+
+
+   <h4>Add your expense below!</h4>
+  <form method="POST" action="/addToDB">
+                            <div class="form">
+                                
+                                
+                                <label> Chooose Type of transaction</label>
+                                 <input type="radio" id="income" name="TypeOfTransaction" value="Income">
+                                      <label for="income">Income</label>
+                                <input type="radio" id="expense" name="TypeOfTransaction" value="Expense">
+                                      <label for="expense">Expense</label>
+                                <br>
+								<br>
+                                <label> Chooose your mode of transaction</label>
+                                <input type="radio" id="card" name="WayOfTransaction" value="Card">
+                                      <label for="card">Card</label>
+                                <input type="radio" id="cash" name="WayOfTransaction" value="Cash">
+                                      <label for="cash">Cash</label>
+                                <input type="radio" id="other" name="WayOfTransaction" value="Other">
+                                      <label for="other">Other</label>
+                                <br>
+                                <br>
+                                <label> Chooose your mode of Categry</label>
+                                <input type="radio" id="food" name="Category" value="Food">
+                                      <label for="food">Food</label>
+                                <input type="radio" id="household" name="Category" value="Household">
+                                      <label for="household">Household</label>
+                                <input type="radio" id="apparel" name="Category" value="Apparel">
+                                      <label for="apparel">Apparel</label>
+                                <input type="radio" id="transportation" name="Category" value="	Transportation">
+                                      <label for="transportation">Transportation</label>
+                                <input type="radio" id="health" name="Category" value="Health">
+                                      <label for="health">Health</label>
+                                <input type="radio" id="school" name="Category" value="School">
+                                      <label for="school">School</label>
+                                <br>
+                                <br>
+                                <label for="amount">Amount:</label>
+                                <input type="text" id="amount" name="amount" placeholder="0" />
+                                <br>
+                                <br>
+                                        
+                                <label for="note">Note:</label>
+                                <input type="text" id="note" name="note"  placeholder="None" />
+                                <br>
+                                <br>
+                                <input type="submit" value="Submit"/><i class="fa fa-sign-in"></i></a>
+                                </span>
+</div>
+
+
+</div>
+</body>
+</html>
+
+
+        
+
+                        
+

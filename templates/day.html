@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+// Load google charts
+google.charts.load('current', {'packages':['corechart']});
+// Draw the chart and set the chart values
+function draw(data) {
+    console.log(data)
+
+	
+	var dataByCategory = [['Category', 'Amount']]
+	var cat = {}
+	var dataByTransaction = [['Way of Transaction', 'Amount']]
+	var way = {}
+    var dataByTypOfTransaction = [['Type of Transaction', 'Amount']]
+	var type = {}
+  for(var key in data){
+	if (data[key].category in cat){
+	
+		cat[data[key].category]+=Number(data[key].amount)}
+	else{
+
+		cat[data[key].category]=Number(data[key].amount)
+	}
+	if (data[key].wayOfTransaction in way){
+		way[data[key].wayOfTransaction]+=Number(data[key].amount)}
+	else{
+		way[data[key].wayOfTransaction]=Number(data[key].amount)
+	}
+	if (data[key].typeOfTransaction in type){
+		type[data[key].typeOfTransaction]+=Number(data[key].amount)}
+	else{
+		type[data[key].typeOfTransaction]=Number(data[key].amount)
+	}
+
+  }
+  for (var key in cat){
+		dataByCategory.push([key,cat[key]])}
+  for (var key in type){
+		dataByTypOfTransaction.push([key,type[key]])}
+  for (var key in way){
+		dataByTransaction.push([key,way[key]])}		
+  
+  console.log(dataByCategory)
+  var dataByCategory = google.visualization.arrayToDataTable(dataByCategory);
+  var dataByTypOfTransaction = google.visualization.arrayToDataTable(dataByTypOfTransaction);
+  var dataByTransaction = google.visualization.arrayToDataTable(dataByTransaction);
+  // Optional; add a title and set the width and height of the chart
+  var optionscat = {'title':'Category', 'width':550, 'height':400};
+  var optionsway = {'title':'Way', 'width':550, 'height':400};
+  var optionstype = {'title':'Type', 'width':550, 'height':400};
+
+  // Display the chart inside the <div> element with id="piechart"
+  var chart1 = new google.visualization.PieChart(document.getElementById('piechart1'));
+  chart1.draw(dataByCategory, optionscat);
+  var chart2 = new google.visualization.PieChart(document.getElementById('piechart2'));
+  chart2.draw(dataByTypOfTransaction, optionsway);
+  var chart3 = new google.visualization.PieChart(document.getElementById('piechart3'));
+  chart3.draw(dataByTransaction, optionstype);
+}
+
+function onLoad(){
+  fetch({{url_for('getDailyData')|tojson}},{
+	   method: 'GET',
+      })
+        .then(parseJSON)
+        .then(addShow);
+    }
+	function parseJSON(response) {
+	  
+      return response.json();
+    }
+
+    function addShow(data) {
+
+	  	
+	  if  (!Object.keys(data).length ){
+	    document.getElementById('piechart1').innerHTML = "<p>No data to show! </p>"
+	    return
+	   }
+	  var headers = ["typeOfTransaction","amount","category","wayOfTransaction","note"]
+	  var tableHTML = "<table><tr>";
+	  for (var i in headers) {
+		tableHTML += "<th>" + headers[i] + "</th>";
+	  }
+	  tableHTML += "</tr>";
+
+	  for (var key in data) {
+			t1 = "<tr><td>" + data[key].typeOfTransaction+ "</td>"
+			t2 = t1 + "<td>" + data[key].amount+ "</td>"
+			t3 =  t2+ "<td>" + data[key].category+ "</td>"
+			t4 = t3+ "<td>" + data[key].wayOfTransaction+ "</td>"
+			t5 =  t4 + "<td>" + data[key].note+ "</td> </tr>"
+			tableHTML = tableHTML +t5
+	  }
+	  tableHTML = tableHTML +'</table>'
+	  document.getElementById('expenseTable').innerHTML = tableHTML ;
+	  draw(data)
+	}
+		  
+    
+
+ 
+</script>
+
+</head>
+<body onload="onLoad()">
+<p>Hello World</p>
+<div id="expenseTable">
+</div>
+<div id="piechart1"></div>
+<div id="piechart2"></div>
+<div id="piechart3"></div>
+</body>
+</html>

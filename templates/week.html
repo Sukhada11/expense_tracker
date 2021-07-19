@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+// Load google charts
+google.charts.load('current', {'packages':['corechart']});
+// Draw the chart and set the chart values
+
+
+
+
+
+
+function convertDataDay(data,period){
+	var date = new Date();
+	var filterdData ={}
+    function filterFn(data,start,end) { 
+		  var filtered = {}
+		  for (var k in data) {
+		  
+			var date  = new Date(data[k].year,data[k].month-1,data[k].day)
+
+			if (date>=start && date<=end){
+				filtered[k] = data[k]
+			}
+		  }
+		  return filtered}
+		 
+	
+	if (period == 'curr') {
+		var firstDay = startOfWeek(date)
+        var lastDay =  startOfWeek(date)
+		console.log(firstDay,lastDay)
+		filterdData = filterFn(data,firstDay,lastDay)
+		
+	}
+	else if (period =='last'){
+		var firstDay = new Date(date.getFullYear(), date.getMonth()-2, 0);
+        var lastDay = new Date(date.getFullYear(), date.getMonth(), 0);
+
+		filterdData = filterFn(data,firstDay,lastDay)
+		
+		
+	}
+	
+	else if (period == 'last3'){
+		var firstDay = new Date(date.getFullYear(), date.getMonth()-3, 0);
+        var lastDay = new Date(date.getFullYear(), date.getMonth()+1, 0);
+		
+		filterdData = filterFn(data,firstDay,lastDay)
+		
+		
+	}
+	else {
+		var firstDay = new Date(date.getFullYear(), date.getMonth()-6, 0);
+        var lastDay = new Date(date.getFullYear(), date.getMonth()+1, 0);
+
+		filterdData = filterFn(data,firstDay,lastDay)
+
+	}
+	return filterdData
+}
+function draw(data,weeklyData,period) {
+	console.log(period)
+	var dataByCategory = [['Category', 'Amount']]
+	var cat = {}
+	var dataByTransaction = [['Way of Transaction', 'Amount']]
+	var way = {}
+    var dataByTypOfTransaction = [['Type of Transaction', 'Amount']]
+	var type = {}
+  for(var key in data){
+	if (data[key].category in cat){
+	
+		cat[data[key].category]+=Number(data[key].amount)}
+	else{
+
+		cat[data[key].category]=Number(data[key].amount)
+	}
+	if (data[key].wayOfTransaction in way){
+		way[data[key].wayOfTransaction]+=Number(data[key].amount)}
+	else{
+		way[data[key].wayOfTransaction]=Number(data[key].amount)
+	}
+	if (data[key].typeOfTransaction in type){
+		type[data[key].typeOfTransaction]+=Number(data[key].amount)}
+	else{
+		type[data[key].typeOfTransaction]=Number(data[key].amount)
+	}
+
+  }
+  for (var key in cat){
+		dataByCategory.push([key,cat[key]])}
+  for (var key in type){
+		dataByTypOfTransaction.push([key,type[key]])}
+  for (var key in way){
+		dataByTransaction.push([key,way[key]])}	
+
+  console.log(dataByCategory)
+  var dataByCategory = google.visualization.arrayToDataTable(dataByCategory);
+  var dataByTypOfTransaction = google.visualization.arrayToDataTable(dataByTypOfTransaction);
+  var dataByTransaction = google.visualization.arrayToDataTable(dataByTransaction);
+  // Optional; add a title and set the width and height of the chart
+  var optionscat = {'title':'Category', 'width':550, 'height':400};
+  var optionsway = {'title':'Way', 'width':550, 'height':400};
+  var optionstype = {'title':'Type', 'width':550, 'height':400};
+
+  // Display the chart inside the <div> element with id="piechart"
+  var chart1 = new google.visualization.PieChart(document.getElementById('piechart1'));
+  chart1.draw(dataByCategory, optionscat);
+  var chart2 = new google.visualization.PieChart(document.getElementById('piechart2'));
+  chart2.draw(dataByTypOfTransaction, optionsway);
+  var chart3 = new google.visualization.PieChart(document.getElementById('piechart3'));
+  chart3.draw(dataByTransaction, optionstype);
+  if (period=='weekly'){
+    
+	var amountByWeek = [['Week', 'Amount']]
+	var incomeByWeek = [['Week', 'Income']]
+	var expenseByWeek = [['Week', 'Expense']]
+	for (week in weeklyData){
+		 amountByWeek.push([week,weeklyData[week]['total']])
+		 incomeByWeek.push([week,weeklyData[week]['income']])
+		 expenseByWeek.push([week,weeklyData[week]['expense']])}
+	var amountByWeek = google.visualization.arrayToDataTable(amountByWeek)
+	var incomeByWeek = google.visualization.arrayToDataTable(incomeByWeek)
+	var expenseByWeek = google.visualization.arrayToDataTable(expenseByWeek)
+	var optionsamt = {'title':'Monthly Transactions', 'width':550, 'height':400};
+	var optionsinc = {'title':'Monthly Income', 'width':550, 'height':400};
+	var optionsexp = {'title':'Monthly Expense', 'width':550, 'height':400};
+    var chart4 = new google.visualization.PieChart(document.getElementById('piechart4'));
+    chart4.draw(amountByWeek, optionsamt);
+    var chart5 = new google.visualization.PieChart(document.getElementById('piechart5'));
+    chart5.draw(incomeByWeek, optionsinc);
+    var chart6 = new google.visualization.PieChart(document.getElementById('piechart6'));
+    chart6.draw(expenseByWeek, optionsexp);
+  }else{
+  		document.getElementById('piechart4').innerHTML = "<p></p>"
+		document.getElementById('piechart5').innerHTML = "<p></p>"
+		document.getElementById('piechart6').innerHTML = "<p></p>"
+  
+  
+  
+  }
+
+}
+var jsonData 
+function onLoad(){
+  fetch({{url_for('getWeeklyData')|tojson}},{
+	   method: 'GET',
+      })
+        .then(parseJSON)
+        .then(setData);
+    }
+	function parseJSON(response) {
+	  
+      return response.json();
+    }
+	
+    function setData(data) {
+      jsonData = data
+	  addShow(convertDataDay(data,'curr'),'day')
+	  }
+	  
+	  
+	function addShow(data,format){
+	console.log(data)
+	console.log(!Object.keys(data).length)
+	if  (!Object.keys(data).length ){
+	    document.getElementById('expenseTable').innerHTML = "<p>No data to show! </p>"
+	    document.getElementById('piechart1').innerHTML = "<p></p>"
+		document.getElementById('piechart2').innerHTML = "<p></p>"
+		document.getElementById('piechart3').innerHTML = "<p></p>"
+		document.getElementById('piechart4').innerHTML = "<p></p>"
+		document.getElementById('piechart5').innerHTML = "<p></p>"
+		document.getElementById('piechart6').innerHTML = "<p></p>"
+		return
+	   }
+	var otherheaders = ["typeOfTransaction","amount","category","wayOfTransaction","note"]
+	var weekly={}
+
+	if (format == 'week'){
+
+		var headers = ['week','total','income','expense']
+		
+		for (k in data){
+			week  = data[k].week
+			if (week in weekly){
+				weekly[week]['total']+=data[k].amount
+				if (data[k].typeOfTransaction == 'income'){
+					weekly[week]['income'] += data[k].amount
+				}else{
+					weekly[week]['expense'] += data[k].amount
+				}
+			}else{
+				weekly[week]={'total':0,'income':0,'expense':0}
+				weekly[week]['total']=data[k].amount
+				weekly[week]['income'] = 0
+				weekly[week]['expense'] = 0
+				if (data[k].typeOfTransaction == 'income'){
+					weekly[week]['income'] = data[k].amount
+				}else{
+					weekly[week]['expense'] = data[k].amount
+				}
+			
+			}
+		console.log(weekly)
+		}
+	}else{
+
+		var header  = ['day']
+		headers = header.concat(otherheaders)
+	}
+	  
+	 
+	  var tableHTML = "<table><tr>";
+	  for (var i in headers) {
+		tableHTML += "<th>" + headers[i] + "</th>";
+	  }
+	  tableHTML += "</tr>";
+	  if (format == 'week'){
+		for (var week in weekly) {
+		t0 = "<tr><td>" + week + "</td>"
+		t2 = t1 + "<td>" + weekly[week].total+ "</td>"
+		t3 =  t2+ "<td>" + weekly[week].expense+ "</td>"
+		t4 =  t3+ "<td>" + weekly[week].income+ "</td>"
+		tableHTML = tableHTML +t4
+		}}else{
+
+		for (var key in data) {
+		t0 = "<tr><td>" + data[key][format] + "</td>"
+		t1 = t0 + "<td>" +data[key].typeOfTransaction+ "</td>"
+		t2 = t1 + "<td>" + data[key].amount+ "</td>"
+		t3 =  t2+ "<td>" + data[key].category+ "</td>"
+		t4 = t3+ "<td>" + data[key].wayOfTransaction+ "</td>"
+		t5 =  t4 + "<td>" + data[key].note+ "</td> </tr>"
+		tableHTML = tableHTML +t5
+	  }}
+	  tableHTML = tableHTML +'</table>'
+	  document.getElementById('expenseTable').innerHTML = tableHTML ;
+	  
+	  if (format == 'week'){
+		draw(data,weekly,'weekly')
+	  }else{
+		draw(data,weekly,'daily')
+		}
+		
+		
+
+	  
+	  }
+	  function loadData(text){
+		if (text == 'curr' || text == 'last'){
+	  addShow(convertDataDay(jsonData,text),'day')}
+	    else if (text == 'last3' || text == 'last6'){
+	  addShow(convertDataDay(jsonData,text),'week')}
+	  
+		
+	  
+	  
+	  
+	  }
+	
+		  
+    
+
+ 
+</script>
+
+</head>
+<body onload="onLoad()">
+<p>Hello World</p>
+<input type="button"value="Current week" id="button" onclick="loadData('curr')"/> 
+<input type="button"value="Last week" id="button" onclick="loadData('last')"/> 
+<input type="button"value="Last 3 weeks" id="button" onclick="loadData('last3')" /> 
+<input type="button"value="Last 6 weeks" id="button" onclick="loadData('last6')" /> 
+
+<div id="expenseTable">
+</div>
+<div id="piechart1"></div>
+<div id="piechart2"></div>
+<div id="piechart3"></div>
+<div id="piechart4"></div>
+<div id="piechart5"></div>
+<div id="piechart6"></div>
+</body>
+</html>
